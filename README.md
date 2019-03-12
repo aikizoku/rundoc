@@ -46,7 +46,7 @@ auth.json
 ```
 
 request.json
-```
+```json
 {
     "description": "ほげほげをするAPI",
     "path": "/hogehoge/fuga",
@@ -63,21 +63,21 @@ request.json
 
 # 使い方
 リクエスト名のリストを表示する
-```
+```bash
 ./rundoc -l
 ```
 
 任意のリクエストをローカル環境で実行する
-```
+```bash
 ./rundoc -n get_me
 ```
 
 任意のリクエストを環境を指定して実行する
-```
+```bash
 ./rundoc -n get_me -e staging
 ```
 
 任意のリクエストをローカル環境で実行してドキュメントを作成する
-```
+```bash
 ./rundoc -n get_me -d
 ```
