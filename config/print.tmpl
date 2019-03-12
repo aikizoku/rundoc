@@ -1,0 +1,10 @@
+
+------------- Request
+{{.Request.Method}} {{.Request.Path}}
+{{.Request.Headers}}
+{{.Request.Params}}
+
+------------- Response
+time: {{.Response.Time}}ms
+status: {{.Response.StatusCode}}
+{{.Response.Body}}
