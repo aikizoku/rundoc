@@ -1,70 +1,83 @@
-# rundoc
+# これはなに？
+みんな大好きjsonでリクエストを記述しておけば、実行&結果表示&Doc作成.mdをしてくれるコマンドラインツール
 
+# 準備
+configフォルダに共通設定のjsonを置く
+```
+config
+└common.json
+└auth.json
+```
 
-rundoc
+runsフォルダにリクエストを送りたいjsonを置く
+```
+runs
+└get_me.json
+└post_user_profile.json
+```
 
-みんな大好きjsonでリクエストを記述しておけば、実行&結果表示&Doc作成.mdをしてくれる
+docsフォルダを作るする
+```
+docs
+```
 
-rundoc name -e local staging production -d
-
-rundoc -l
-
-
+# サンプル
 common.json
-{
-    "endpoints": [
-        {
-            "env": "local",
-            "url": "http://localhost:8080"
-        },
-        {
-            "env": "staging",
-            "url": "https://push.staging.salontia.rabee.jp"
-        },
-        {
-            "env": "production",
-            "url": "https://push.salontia.rabee.jp"
-        }
-    ],
-    "headers": [
-        {
-            "field": "Content-Type",
-            "value": "application/json"
-        },
-    ]
-}
-
-authorization.example.json
-authorization.json
-{
-    "local": "token",
-    "staging": "token",
-    "production": ""
-}
-
-
-entry.json
-{
-    "title": "post_api_rpc_entry",
-    "description": "",
-    "path": "/api/rpc",
-    "method": "post",
-    "headers": {
-
+```json
+{  
+    "endpoints": {
+        "local": "http://localhost:8080",
+        "staging": "https://staging.appspot.com",
+        "production": "https://appspot.com"
     },
-    "params": {
-
+    "headers": {
+        "Content-Type": "application/json"
     }
 }
+```
 
-+ rundoc            
-  - rundoc
-  + config
-    - common.json
-    - authorization.example.json
-    - authorization.json
-    - doc.tmpl
-  + runs
-    - get_entry.json
-  + docs
-    - get_entry.mk
+auth.json
+```json
+{
+    "local": "sample_auth_token",
+    "staging": "sample_auth_token",
+    "production": "sample_auth_token"
+}
+```
+
+request.json
+```
+{
+    "description": "ほげほげをするAPI",
+    "path": "/hogehoge/fuga",
+    "method": "post",
+    "headers": {
+        "X-OS": "iOS",
+    },
+    "params": {
+        "hoge": "aaaaa",
+        "fuga": "xxxxx"
+    }
+}
+```
+
+# 使い方
+リクエスト名のリストを表示する
+```
+./rundoc -l
+```
+
+任意のリクエストをローカル環境で実行する
+```
+./rundoc -n get_me
+```
+
+任意のリクエストを環境を指定して実行する
+```
+./rundoc -n get_me -e staging
+```
+
+任意のリクエストをローカル環境で実行してドキュメントを作成する
+```
+./rundoc -n get_me -d
+```
