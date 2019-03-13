@@ -19,7 +19,7 @@ func (s *documenter) Distribute(name string, api *model.API) {
 	if s.fRepo.Exist(path) {
 		s.fRepo.Remove(path)
 	}
-	s.fRepo.Write(s.docsDir+name, str)
+	s.fRepo.Write(path, str)
 }
 
 // NewDocumenter ... サービスを作成する
