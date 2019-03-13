@@ -1,4 +1,4 @@
-{  
+{
     "endpoints": {
         "local": "http://localhost:8080",
         "staging": "https://staging.appspot.com",

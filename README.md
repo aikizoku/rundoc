@@ -2,63 +2,19 @@
 みんな大好きjsonでリクエストを記述しておけば、実行&結果表示&ドキュメント作成をしてくれるコマンドラインツール
 
 # 準備
-configフォルダに共通設定のjsonを置く
+初期化
 ```
+./rundoc -i
+
+上記コマンドを実行すると下記ディレクトリが作成される
 config
 └common.json
 └auth.json
-```
-
-runsフォルダにリクエストを送りたいjsonを置く
-```
 runs
-└get_me.json
-└post_user_profile.json
-```
-
-docsフォルダを作るする
-```
+└sample.json
 docs
-```
 
-# 各ファイルのサンプル
-common.json
-```json
-{  
-    "endpoints": {
-        "local": "http://localhost:8080",
-        "staging": "https://staging.appspot.com",
-        "production": "https://appspot.com"
-    },
-    "headers": {
-        "Content-Type": "application/json"
-    }
-}
-```
-
-auth.json
-```json
-{
-    "local": "sample_auth_token",
-    "staging": "sample_auth_token",
-    "production": "sample_auth_token"
-}
-```
-
-request.json
-```json
-{
-    "description": "ほげほげをするAPI",
-    "path": "/hogehoge/fuga",
-    "method": "post",
-    "headers": {
-        "X-OS": "iOS",
-    },
-    "params": {
-        "hoge": "aaaaa",
-        "fuga": "xxxxx"
-    }
-}
+runs/sample.jsonを参考にリクエストを作る
 ```
 
 # 使い方
@@ -69,15 +25,15 @@ request.json
 
 任意のリクエストをローカル環境で実行する
 ```bash
-./rundoc -n get_me
+./rundoc -n sample
 ```
 
 任意のリクエストを環境を指定して実行する
 ```bash
-./rundoc -n get_me -e staging
+./rundoc -n sample -e staging
 ```
 
 任意のリクエストをローカル環境で実行してドキュメントを作成する
 ```bash
-./rundoc -n get_me -d
+./rundoc -n sample -d
 ```

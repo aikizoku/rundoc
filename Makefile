@@ -5,5 +5,8 @@ GOPHER = 'ʕ◔ϖ◔ʔ'
 hello:
 	@echo Hello go project ${GOPHER}
 
+file_to_bin:
+	@statik -src=src/template
+
 build:
 	@go build -a -o rundoc main.go
