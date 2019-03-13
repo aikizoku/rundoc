@@ -24,7 +24,7 @@ runs/sample.jsonを参考にリクエストを記載したjsonを作る
 ./rundoc -l
 ```
 
-リクエストをローカル環境で実行する
+リクエストを実行する
 ```bash
 ./rundoc -n sample
 ```
