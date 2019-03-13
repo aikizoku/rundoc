@@ -8,10 +8,10 @@
 
 上記コマンドを実行すると下記ディレクトリが作成される
 config
-└common.json
-└auth.json
+  └ common.json
+  └ auth.json
 runs
-└sample.json
+  └ sample.json
 docs
 
 runs/sample.jsonを参考にリクエストを作る
