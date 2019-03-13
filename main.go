@@ -53,7 +53,7 @@ func (d *Dependency) Inject() {
 	tRepo := repository.NewTemplateClient()
 
 	// Service
-	d.Initializer = service.NewInitializer(config.ConfigDir, config.RunsDir, config.RunsDir, fRepo)
+	d.Initializer = service.NewInitializer(config.ConfigDir, config.RunsDir, config.DocsDir, fRepo)
 	d.Runner = service.NewRunner(config.ConfigDir, config.RunsDir, fRepo, hRepo, tRepo)
 	d.Documenter = service.NewDocumenter(config.ConfigDir, config.DocsDir, fRepo, tRepo)
 }
