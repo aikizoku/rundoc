@@ -10,3 +10,6 @@ file_to_bin:
 
 build:
 	@go build -a -o rundoc main.go
+
+test:
+	@./rundoc -r post_api_rpc_entry -d

@@ -8,6 +8,7 @@
         "id": "0",
         "method": "entry",
         "params": {
+            "app_id": "sample_app",
             "user_id": "sample_user_id",
             "platform": "ios",
             "device_id": "sample_device_id",

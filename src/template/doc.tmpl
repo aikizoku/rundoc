@@ -2,20 +2,14 @@
 
 {{.Description}}
 
-|ENV|URL|
-|---|---|
-|Local|{{.Endpoints.Local}}|
-|Staging|{{.Endpoints.Staging}}|
-|Production|{{.Endpoints.Production}}|
-
 ## Request
 
-```
-{{.Request.Method}}
-```
-```
-{{.Request.Path}}
-```
+|ENV|URL|
+|---|---|
+|Local|`{{.Request.Method}}` {{.Endpoints.Local}}{{.Request.Path}}|
+|Staging|`{{.Request.Method}}` {{.Endpoints.Staging}}{{.Request.Path}}|
+|Production|`{{.Request.Method}}` {{.Endpoints.Production}}{{.Request.Path}}|
+
 ```
 {{.Request.Headers}}
 ```
@@ -26,7 +20,7 @@
 ## Response
 
 ```
-{{.Response.StatusCode}}
+Status {{.Response.StatusCode}}
 ```
 ```json
 {{.Response.Body}}

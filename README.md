@@ -2,7 +2,7 @@
 みんな大好きjsonでリクエストを記述すると、APIの実行 & 表示 & ドキュメント作成をしてくれるコマンドラインツール
 
 # 準備
-初期化
+初期化する
 ```bash
 ./rundoc -i
 ```
@@ -26,15 +26,15 @@ runs/sample.jsonを参考にリクエストを記載したjsonを作る
 
 リクエストを実行する
 ```bash
-./rundoc -n sample
+./rundoc -r sample
 ```
 
 リクエストを環境を指定して実行する
 ```bash
-./rundoc -e staging -n sample
+./rundoc -e staging -r sample
 ```
 
 リクエストを実行してドキュメントを作成する
 ```bash
-./rundoc -d -n sample
+./rundoc -d -r sample
 ```

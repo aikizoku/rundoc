@@ -2,20 +2,14 @@
 
 プッシュ通知のエントリーを行う
 
-|ENV|URL|
-|---|---|
-|Local|http://localhost:8080|
-|Staging|https://staging.appspot.com|
-|Production|https://appspot.com|
-
 ## Request
 
-```
-POST
-```
-```
-/api/rpc
-```
+|ENV|URL|
+|---|---|
+|Local|`POST` http://localhost:8080/api/rpc|
+|Staging|`POST` https://staging.appspot.com/api/rpc|
+|Production|`POST` https://appspot.com/api/rpc|
+
 ```
 Authorization: xxxxxxxxxx
 Content-Type: application/json
@@ -26,6 +20,7 @@ Content-Type: application/json
     "jsonrpc": "2.0",
     "method": "entry",
     "params": {
+        "app_id": "sample_app",
         "device_id": "sample_device_id",
         "platform": "ios",
         "token": "sample_token",
@@ -37,7 +32,7 @@ Content-Type: application/json
 ## Response
 
 ```
-200
+Status 200
 ```
 ```json
 {

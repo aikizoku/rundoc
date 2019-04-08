@@ -11,7 +11,7 @@ import (
 func main() {
 	isInit := flag.Bool("i", false, "initialize")
 	isList := flag.Bool("l", false, "show runs name list")
-	name := flag.String("n", "", "runs json file name")
+	name := flag.String("r", "", "runs json file name")
 	env := flag.String("e", "local", "run env")
 	isDocs := flag.Bool("d", false, "run and generate docs")
 	flag.Parse()
