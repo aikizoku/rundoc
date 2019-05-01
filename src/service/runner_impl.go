@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/aikizoku/rundoc/src/log"
 	"github.com/aikizoku/rundoc/src/model"
 	"github.com/aikizoku/rundoc/src/repository"
 )
@@ -19,8 +20,11 @@ type runner struct {
 	tRepo     repository.TemplateClient
 }
 
-func (s *runner) ShowList() {
-	fileNames := s.fRepo.GetNameList(s.runsDir)
+func (s *runner) ShowList() error {
+	fileNames, err := s.fRepo.GetNameList(s.runsDir)
+	if err != nil {
+		return err
+	}
 
 	fmt.Println("----- runable names -----")
 	for _, fileName := range fileNames {
@@ -28,45 +32,51 @@ func (s *runner) ShowList() {
 		fmt.Println(name)
 	}
 	fmt.Println("-------------------------")
-	return
+	return nil
 }
 
 func (s *runner) getFileNameWithoutExt(fileName string) string {
 	return filepath.Base(fileName[:len(fileName)-len(filepath.Ext(fileName))])
 }
 
-func (s *runner) Run(name string, env string) *model.API {
+func (s *runner) Run(name string, env string) (*model.API, error) {
 	// 共通設定
 	commonFile, err := ioutil.ReadFile(s.configDir + "common.json")
 	if err != nil {
-		panic(err)
+		log.Errorf(err, "ファイル読み込みに失敗: %s%s", s.configDir, "common.json")
+		return nil, err
 	}
 	var common model.FileCommon
 	err = json.Unmarshal(commonFile, &common)
 	if err != nil {
-		panic(err)
+		log.Errorf(err, "jsonのparseに失敗: %s", string(commonFile))
+		return nil, err
 	}
 
 	// 認証設定
 	authFile, err := ioutil.ReadFile(s.configDir + "auth.json")
 	if err != nil {
-		panic(err)
+		log.Errorf(err, "ファイル読み込みに失敗: %s%s", s.configDir, "auth.json")
+		return nil, err
 	}
 	var auth model.FileAuth
 	err = json.Unmarshal(authFile, &auth)
 	if err != nil {
-		panic(err)
+		log.Errorf(err, "jsonのparseに失敗: %s", string(authFile))
+		return nil, err
 	}
 
 	// 実行設定
 	runFile, err := ioutil.ReadFile(s.runsDir + name + ".json")
 	if err != nil {
-		panic(err)
+		log.Errorf(err, "ファイル読み込みに失敗: %s%s%s", s.runsDir, name, ".json")
+		return nil, err
 	}
 	var run model.FileRun
 	err = json.Unmarshal(runFile, &run)
 	if err != nil {
-		panic(err)
+		log.Errorf(err, "jsonのparseに失敗: %s", string(runFile))
+		return nil, err
 	}
 
 	// 環境選択
@@ -82,7 +92,11 @@ func (s *runner) Run(name string, env string) *model.API {
 		url = common.Endpoints.Production + run.Path
 		authorization = auth.Production
 	default:
-		panic(fmt.Errorf("invalid env: %s", env))
+		err = fmt.Errorf("invalid env: %s", env)
+	}
+	if err != nil {
+		log.Errorf(err, "不正なenv: %s", env)
+		return nil, err
 	}
 
 	// Header結合
@@ -98,7 +112,8 @@ func (s *runner) Run(name string, env string) *model.API {
 	// Params
 	params, err := json.Marshal(run.Params)
 	if err != nil {
-		panic(err)
+		log.Errorf(err, "jsonのparseに失敗: %v", run.Params)
+		return nil, err
 	}
 
 	// 実行
@@ -107,15 +122,29 @@ func (s *runner) Run(name string, env string) *model.API {
 	var body []byte
 	switch run.Method {
 	case "get":
-		runTime, statusCode, body = s.hRepo.Get(url, run.Params, headers)
+		runTime, statusCode, body, err = s.hRepo.Get(url, run.Params, headers)
+		if err != nil {
+			return nil, err
+		}
 	case "post":
-		runTime, statusCode, body = s.hRepo.Post(url, params, headers)
+		runTime, statusCode, body, err = s.hRepo.Post(url, params, headers)
+		if err != nil {
+			return nil, err
+		}
 	case "put":
-		runTime, statusCode, body = s.hRepo.Put(url, params, headers)
+		runTime, statusCode, body, err = s.hRepo.Put(url, params, headers)
+		if err != nil {
+			return nil, err
+		}
 	case "delete":
-		runTime, statusCode, body = s.hRepo.Delete(url, run.Params, headers)
+		runTime, statusCode, body, err = s.hRepo.Delete(url, run.Params, headers)
+		if err != nil {
+			return nil, err
+		}
 	default:
-		panic(fmt.Errorf("invalid method: %s", run.Method))
+		err = fmt.Errorf("invalid method: %s", run.Method)
+		log.Errorf(err, "不正なmethod: %s", run.Method)
+		return nil, err
 	}
 
 	// header文字列を作成
@@ -146,27 +175,41 @@ func (s *runner) Run(name string, env string) *model.API {
 		Staging:    common.Endpoints.Staging,
 		Production: common.Endpoints.Production,
 	}
+	reqStr, err := convertPrettyJSON(params)
+	if err != nil {
+		return nil, err
+	}
 	api.Request = &model.APIRequest{
 		Method:  strings.ToUpper(run.Method),
 		Path:    run.Path,
 		Headers: strings.Join(ahStrs, "\n"),
-		Params:  strings.Trim(convertPrettyJSON(params), "\n"),
+		Params:  strings.Trim(reqStr, "\n"),
+	}
+	resStr, err := convertPrettyJSON(body)
+	if err != nil {
+		return nil, err
 	}
 	api.Response = &model.APIResponse{
 		Time:       runTime,
 		StatusCode: statusCode,
-		Body:       strings.Trim(convertPrettyJSON(body), "\n"),
+		Body:       strings.Trim(resStr, "\n"),
 	}
 
 	// 結果を表示
-	b := getBinFileData("print.tmpl")
-	out := s.tRepo.GetMarged(string(b), api)
+	b, err := getBinFileData("print.tmpl")
+	if err != nil {
+		return nil, err
+	}
+	out, err := s.tRepo.GetMarged(string(b), api)
+	if err != nil {
+		return nil, err
+	}
 	fmt.Println(out)
 
 	// 認証情報を隠したheaderに差し替える
 	api.Request.Headers = strings.Join(hStrs, "\n")
 
-	return api
+	return api, nil
 }
 
 // NewRunner ... サービスを作成する

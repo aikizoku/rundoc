@@ -12,14 +12,27 @@ type documenter struct {
 	tRepo     repository.TemplateClient
 }
 
-func (s *documenter) Distribute(name string, api *model.API) {
-	b := getBinFileData("doc.tmpl")
-	str := s.tRepo.GetMarged(string(b), api)
+func (s *documenter) Distribute(name string, api *model.API) error {
+	b, err := getBinFileData("doc.tmpl")
+	if err != nil {
+		return err
+	}
+	str, err := s.tRepo.GetMarged(string(b), api)
+	if err != nil {
+		return err
+	}
 	path := s.docsDir + name + ".md"
 	if s.fRepo.Exist(path) {
-		s.fRepo.Remove(path)
+		err = s.fRepo.Remove(path)
+		if err != nil {
+			return err
+		}
 	}
-	s.fRepo.Write(path, str)
+	err = s.fRepo.Write(path, str)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // NewDocumenter ... サービスを作成する

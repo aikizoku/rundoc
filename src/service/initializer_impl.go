@@ -3,6 +3,7 @@ package service
 import (
 	"encoding/json"
 
+	"github.com/aikizoku/rundoc/src/log"
 	"github.com/aikizoku/rundoc/src/model"
 	"github.com/aikizoku/rundoc/src/repository"
 )
@@ -14,7 +15,7 @@ type initializer struct {
 	fRepo     repository.File
 }
 
-func (s *initializer) Init() {
+func (s *initializer) Init() error {
 	s.fRepo.WriteDir(s.configDir)
 	s.fRepo.WriteDir(s.runsDir)
 	s.fRepo.WriteDir(s.docsDir)
@@ -33,9 +34,18 @@ func (s *initializer) Init() {
 		}
 		j, err := json.Marshal(common)
 		if err != nil {
-			panic(err)
+			log.Errorf(err, "common.jsonのparseに失敗: %v", common)
+			return err
 		}
-		s.fRepo.Write(s.configDir+"common.json", convertPrettyJSON(j))
+		jstr, err := convertPrettyJSON(j)
+		if err != nil {
+			return err
+		}
+		err = s.fRepo.Write(s.configDir+"common.json", jstr)
+		if err != nil {
+			return err
+		}
+		return nil
 	}
 
 	// auth.json
@@ -47,9 +57,17 @@ func (s *initializer) Init() {
 		}
 		j, err := json.Marshal(auth)
 		if err != nil {
-			panic(err)
+			log.Errorf(err, "auth.jsonのparseに失敗: %v", auth)
+			return err
 		}
-		s.fRepo.Write(s.configDir+"auth.json", convertPrettyJSON(j))
+		jstr, err := convertPrettyJSON(j)
+		if err != nil {
+			return err
+		}
+		err = s.fRepo.Write(s.configDir+"auth.json", jstr)
+		if err != nil {
+			return err
+		}
 	}
 
 	// sample.json
@@ -68,10 +86,19 @@ func (s *initializer) Init() {
 		}
 		j, err := json.Marshal(sample)
 		if err != nil {
-			panic(err)
+			log.Errorf(err, "sample.jsonのparseに失敗: %v", sample)
+			return err
 		}
-		s.fRepo.Write(s.runsDir+"sample.json", convertPrettyJSON(j))
+		jstr, err := convertPrettyJSON(j)
+		if err != nil {
+			return err
+		}
+		err = s.fRepo.Write(s.runsDir+"sample.json", jstr)
+		if err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // NewInitializer ...

@@ -4,6 +4,7 @@ import (
 	"flag"
 
 	"github.com/aikizoku/rundoc/src/config"
+	"github.com/aikizoku/rundoc/src/log"
 	"github.com/aikizoku/rundoc/src/repository"
 	"github.com/aikizoku/rundoc/src/service"
 )
@@ -16,23 +17,36 @@ func main() {
 	isDocs := flag.Bool("d", false, "run and generate docs")
 	flag.Parse()
 
+	// ログを初期化
+	log.Setup()
+
+	// DI
 	d := &Dependency{}
 	d.Inject()
 
 	// 初期化コマンド
 	if *isInit {
-		d.Initializer.Init()
+		err := d.Initializer.Init()
+		if err != nil {
+			return
+		}
 		return
 	}
 
 	// 実行リスト表示コマンド
 	if *isList {
-		d.Runner.ShowList()
+		err := d.Runner.ShowList()
+		if err != nil {
+			return
+		}
 		return
 	}
 
 	// 実行コマンド
-	api := d.Runner.Run(*name, *env)
+	api, err := d.Runner.Run(*name, *env)
+	if err != nil {
+		return
+	}
 	if *isDocs {
 		d.Documenter.Distribute(*name, api)
 	}
