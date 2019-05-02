@@ -14,13 +14,13 @@ func Setup() {
 
 // Infof ... ログの出力
 func Infof(msg string, args ...interface{}) {
-	txt := fmt.Sprintf(msg, args)
+	txt := fmt.Sprintf(msg, args...)
 	log.Printf("%s %s", getFileLine(), txt)
 }
 
 // Errorf ... エラーログの出力
 func Errorf(err error, msg string, args ...interface{}) {
-	txt := fmt.Sprintf(msg, args)
+	txt := fmt.Sprintf(msg, args...)
 	log.Printf("[ERROR] %s %s %s", getFileLine(), txt, err.Error())
 }
 
