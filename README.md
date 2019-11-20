@@ -13,17 +13,20 @@ rundoc init
 ```
 上記コマンドを実行すると下記ディレクトリが作成される
 ```
-config
-  └ common.json
-  └ auth.json
-runs
-  └ sample.json
-docs
+rundoc 
+  └ config
+    └ common.json
+    └ auth.json
+  └ runs
+    └ sample.json
+  └ docs
 ```
 common.json と auth.json に共通情報を記載する
 runs/sample.jsonを参考にリクエストを記載したjsonを作る
 
 # 使い方
+rundocフォルダがあるディレクトリで下記コマンドを実行する
+
 リクエストのリストを表示する
 ```bash
 rundoc list
