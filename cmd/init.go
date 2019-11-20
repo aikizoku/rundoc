@@ -40,5 +40,5 @@ func (d *initDependency) Inject() {
 	fRepo := repository.NewFile()
 
 	// Service
-	d.Initializer = service.NewInitializer(config.ConfigDir, config.RunsDir, config.DocsDir, fRepo)
+	d.Initializer = service.NewInitializer(config.RootDir, config.ConfigDir, config.RunsDir, config.DocsDir, fRepo)
 }

@@ -9,6 +9,7 @@ import (
 )
 
 type initializer struct {
+	rootDir   string
 	configDir string
 	runsDir   string
 	docsDir   string
@@ -16,6 +17,7 @@ type initializer struct {
 }
 
 func (s *initializer) Init() error {
+	s.fRepo.WriteDir(s.rootDir)
 	s.fRepo.WriteDir(s.configDir)
 	s.fRepo.WriteDir(s.runsDir)
 	s.fRepo.WriteDir(s.docsDir)
@@ -103,11 +105,13 @@ func (s *initializer) Init() error {
 
 // NewInitializer ...
 func NewInitializer(
+	rootDir string,
 	configDir string,
 	runsDir string,
 	docsDir string,
 	fRepo repository.File) Initializer {
 	return &initializer{
+		rootDir:   rootDir,
 		configDir: configDir,
 		runsDir:   runsDir,
 		docsDir:   docsDir,
