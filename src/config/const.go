@@ -1,7 +1,10 @@
 package config
 
 const (
-	ConfigDir = "./config/"
-	RunsDir   = "./runs/"
-	DocsDir   = "./docs/"
+	// ConfigDir ...
+	ConfigDir = "./rundoc/config/"
+	// RunsDir ...
+	RunsDir = "./rundoc/runs/"
+	// DocsDir ...
+	DocsDir = "./rundoc/docs/"
 )
