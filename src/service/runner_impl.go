@@ -26,12 +26,12 @@ func (s *runner) ShowList() error {
 		return err
 	}
 
-	fmt.Println("----- runable names -----")
+	fmt.Println("---------- APIs ----------")
 	for _, fileName := range fileNames {
 		name := s.getFileNameWithoutExt(fileName)
 		fmt.Println(name)
 	}
-	fmt.Println("-------------------------")
+	fmt.Println("--------------------------")
 	return nil
 }
 
@@ -195,8 +195,8 @@ func (s *runner) Run(name string, env string) (*model.API, error) {
 		Body:       strings.Trim(resStr, "\n"),
 	}
 
-	// 結果を表示
-	b, err := getBinFileData("print.tmpl")
+	// 結果(リクエスト)を表示
+	b, err := getBinFileData("print_req.tmpl")
 	if err != nil {
 		return nil, err
 	}
@@ -204,7 +204,18 @@ func (s *runner) Run(name string, env string) (*model.API, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(out)
+	fmt.Println("\n\x1b[32m" + out + "\x1b[0m")
+
+	// 結果(レスポンス)を表示
+	b, err = getBinFileData("print_res.tmpl")
+	if err != nil {
+		return nil, err
+	}
+	out, err = s.tRepo.GetMarged(string(b), api)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("\n\x1b[36m" + out + "\x1b[0m")
 
 	// 認証情報を隠したheaderに差し替える
 	api.Request.Headers = strings.Join(hStrs, "\n")

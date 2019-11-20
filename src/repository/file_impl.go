@@ -54,7 +54,7 @@ func (r *file) Write(path string, body string) error {
 
 	_, err = fmt.Fprintln(file, body)
 	if err != nil {
-		log.Errorf(err, "ファイル書き込みに失敗: %s, %s", path)
+		log.Errorf(err, "ファイル書き込みに失敗: %s", path)
 		return err
 	}
 	return nil

@@ -18,10 +18,10 @@ func Infof(msg string, args ...interface{}) {
 	log.Printf("%s %s", getFileLine(), txt)
 }
 
-// Errorf ... エラーログの出力
+// Errorf ... ERRORログの出力
 func Errorf(err error, msg string, args ...interface{}) {
 	txt := fmt.Sprintf(msg, args...)
-	log.Printf("[ERROR] %s %s %s", getFileLine(), txt, err.Error())
+	log.Printf("\x1b[33m[ERROR] %s %s %s\x1b[0m", getFileLine(), txt, err.Error())
 }
 
 func getFileLine() string {

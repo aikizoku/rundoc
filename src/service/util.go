@@ -5,9 +5,10 @@ import (
 	"encoding/json"
 	"io/ioutil"
 
-	"github.com/aikizoku/rundoc/src/log"
-	_ "github.com/aikizoku/rundoc/statik" // バイナリ化したファイル
 	"github.com/rakyll/statik/fs"
+
+	"github.com/aikizoku/rundoc/src/log"
+	_ "github.com/aikizoku/rundoc/src/statik" // バイナリ化したファイル
 )
 
 func convertPrettyJSON(body []byte) (string, error) {
