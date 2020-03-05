@@ -19,19 +19,31 @@ var runCmd = &cobra.Command{
 	Use:   "run",
 	Short: "APIを実行",
 	Long:  `APIを実行`,
-	Args:  cobra.ExactArgs(1),
+	Args:  cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		name := args[0]
+		var name string
+		if len(args) > 0 {
+			name = args[0]
+		} else {
+			name = ""
+		}
 
 		d := &runDependency{}
 		d.Inject()
 
-		api, err := d.Runner.Run(name, env)
-		if err != nil {
-			os.Exit(1)
-		}
-		if doc {
-			d.Documenter.Distribute(name, api)
+		if name == "" {
+			err := d.Runner.ShowList()
+			if err != nil {
+				os.Exit(1)
+			}
+		} else {
+			api, err := d.Runner.Run(name, env)
+			if err != nil {
+				os.Exit(1)
+			}
+			if doc {
+				d.Documenter.Distribute(name, api)
+			}
 		}
 	},
 }
