@@ -107,7 +107,7 @@ func (r *httpClient) timeNowUnix() int64 {
 
 // NewHTTPClient ... リポジトリを作成する
 func NewHTTPClient() HTTPClient {
-	timeout := 20 * time.Second
+	timeout := 10 * time.Minute
 	return &httpClient{
 		timeout: timeout,
 	}
