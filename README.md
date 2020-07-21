@@ -87,5 +87,5 @@ status: 200
 }
 
 ------------- Command
-rundoc run sample_delete
+rundoc sample_delete -e staging -d
 ```
