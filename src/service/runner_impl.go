@@ -190,10 +190,8 @@ func (s *runner) Run(name string, env string, doc bool) (*model.API, error) {
 		url = common.Endpoints.Production + run.Path
 		authorization = auth.Production
 	default:
-		err = fmt.Errorf("invalid env: %s", env)
-	}
-	if err != nil {
-		log.Errorf(err, "不正なenv: %s", env)
+		err = fmt.Errorf("%s", env)
+		log.Errorf(err, "不正な実行環境: %s", env)
 		return nil, err
 	}
 
@@ -240,7 +238,7 @@ func (s *runner) Run(name string, env string, doc bool) (*model.API, error) {
 			return nil, err
 		}
 	default:
-		err = fmt.Errorf("invalid method: %s", run.Method)
+		err = fmt.Errorf("%s", run.Method)
 		log.Errorf(err, "不正なmethod: %s", run.Method)
 		return nil, err
 	}
@@ -335,7 +333,7 @@ func (s *runner) Run(name string, env string, doc bool) (*model.API, error) {
 }
 
 func (s *runner) generateCommand(name string, env string, doc bool) string {
-	cmds := []string{"rundoc", "run", name}
+	cmds := []string{"rundoc", name}
 	switch env {
 	case "local":
 		break
