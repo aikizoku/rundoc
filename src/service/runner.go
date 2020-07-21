@@ -4,6 +4,8 @@ import "github.com/aikizoku/rundoc/src/model"
 
 // Runner ...
 type Runner interface {
-	ShowList() error
-	Run(name string, env string) (*model.API, error)
+	ShowRunList() error
+	GetRunList() ([]string, error)
+	GetRunPreview(name string) (string, error)
+	Run(name string, env string, doc bool) (*model.API, error)
 }

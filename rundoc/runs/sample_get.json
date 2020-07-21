@@ -1,0 +1,13 @@
+{
+    "description": "サンプルAPIの詳細",
+    "path": "/sample",
+    "method": "get",
+    "headers": {
+        "Authorization": "token",
+        "X-OS": "iOS"
+    },
+    "params": {
+        "hoge": "xxxxx",
+        "fuga": 1
+    }
+}

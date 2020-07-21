@@ -34,15 +34,51 @@ rundoc list
 
 リクエストを実行する
 ```bash
-rundoc run sample
+rundoc run
 ```
 
-環境を指定して実行する
+実行したいAPIを選ぶ
 ```bash
-rundoc run sample -e staging
+sample_delete
+sample_get
+sample_post
+sample_put
 ```
 
-実行してドキュメントを作成する
+実行する環境を選択する
 ```bash
-rundoc run sample -d
+production
+staging
+local
+```
+
+ドキュメントを作成するか？を選択する
+```
+false
+true
+```
+
+# 実行結果
+
+```
+------------- Request
+DELETE /sample
+Authorization: sample_local_token
+Content-Type: application/json
+X-OS: iOS
+{
+    "fuga": "aaaaa",
+    "hoge": "xxxxx"
+}
+
+------------- Response
+time: 7ms
+status: 200
+{
+    "fuga": 1,
+    "hoge": "aaaaaa"
+}
+
+------------- Command
+rundoc run sample_delete
 ```

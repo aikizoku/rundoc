@@ -18,7 +18,7 @@ var listCmd = &cobra.Command{
 		d := &listDependency{}
 		d.Inject()
 
-		err := d.Runner.ShowList()
+		err := d.Runner.ShowRunList()
 		if err != nil {
 			os.Exit(1)
 		}

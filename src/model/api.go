@@ -7,6 +7,7 @@ type API struct {
 	Endpoints   *APIEndpoints
 	Request     *APIRequest
 	Response    *APIResponse
+	Command     string
 }
 
 // APIEndpoints ...

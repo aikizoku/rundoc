@@ -3,6 +3,7 @@ package repository
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -25,7 +26,18 @@ func (r *httpClient) Get(url string, params map[string]interface{}, headers map[
 	}
 	query := req.URL.Query()
 	for key, value := range params {
-		query.Add(key, value.(string))
+		if v, ok := value.(string); ok {
+			query.Add(key, v)
+		}
+		if v, ok := value.(int64); ok {
+			query.Add(key, fmt.Sprintf("%d", v))
+		}
+		if v, ok := value.(float64); ok {
+			query.Add(key, fmt.Sprintf("%f", v))
+		}
+		if v, ok := value.(bool); ok {
+			query.Add(key, fmt.Sprintf("%t", v))
+		}
 	}
 	req.URL.RawQuery = query.Encode()
 	return r.send(req)
@@ -66,7 +78,18 @@ func (r *httpClient) Delete(url string, params map[string]interface{}, headers m
 	}
 	query := req.URL.Query()
 	for key, value := range params {
-		query.Add(key, value.(string))
+		if v, ok := value.(string); ok {
+			query.Add(key, v)
+		}
+		if v, ok := value.(int64); ok {
+			query.Add(key, fmt.Sprintf("%d", v))
+		}
+		if v, ok := value.(float64); ok {
+			query.Add(key, fmt.Sprintf("%f", v))
+		}
+		if v, ok := value.(bool); ok {
+			query.Add(key, fmt.Sprintf("%t", v))
+		}
 	}
 	req.URL.RawQuery = query.Encode()
 	return r.send(req)

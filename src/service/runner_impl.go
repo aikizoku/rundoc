@@ -20,62 +20,160 @@ type runner struct {
 	tRepo     repository.TemplateClient
 }
 
-func (s *runner) ShowList() error {
+func (s *runner) ShowRunList() error {
 	fileNames, err := s.fRepo.GetNameList(s.runsDir)
 	if err != nil {
 		return err
 	}
-
-	fmt.Println("---------- APIs ----------")
 	for _, fileName := range fileNames {
 		name := s.getFileNameWithoutExt(fileName)
 		fmt.Println(name)
 	}
-	fmt.Println("--------------------------")
 	return nil
+}
+
+func (s *runner) GetRunList() ([]string, error) {
+	fileNames, err := s.fRepo.GetNameList(s.runsDir)
+	if err != nil {
+		return nil, err
+	}
+	dsts := []string{}
+	for _, fileName := range fileNames {
+		dst := s.getFileNameWithoutExt(fileName)
+		dsts = append(dsts, dst)
+	}
+	return dsts, nil
 }
 
 func (s *runner) getFileNameWithoutExt(fileName string) string {
 	return filepath.Base(fileName[:len(fileName)-len(filepath.Ext(fileName))])
 }
 
-func (s *runner) Run(name string, env string) (*model.API, error) {
-	// 共通設定
-	commonFile, err := ioutil.ReadFile(s.configDir + "common.json")
+func (s *runner) GetRunPreview(name string) (string, error) {
+	// 実行設定
+	run, err := s.getRunFile(name)
+	if err != nil {
+		log.Errorf(err, "ファイル読み込みに失敗: %s%s%s", s.runsDir, name, ".json")
+		return "", err
+	}
+
+	// Header文字列を作成
+	hStrs := []string{}
+	if _, ok := run.Headers["Authorization"]; !ok {
+		// 認証設定
+		auth, err := s.getAuthFile()
+		if err != nil {
+			log.Errorf(err, "ファイル読み込みに失敗: %s%s", s.configDir, "auth.json")
+			return "", err
+		}
+		hStrs = append(hStrs, fmt.Sprintf("Authorization(Local): %s", auth.Local))
+		hStrs = append(hStrs, fmt.Sprintf("Authorization(Staging): %s", auth.Staging))
+		hStrs = append(hStrs, fmt.Sprintf("Authorization(Production): %s", auth.Production))
+	}
+	hStrs = append(hStrs, "Content-Type: application/json")
+	for key, value := range run.Headers {
+		hStrs = append(hStrs, fmt.Sprintf("%s: %s", key, value))
+	}
+
+	// Param文字列を作成
+	params, err := json.Marshal(run.Params)
+	if err != nil {
+		log.Errorf(err, "jsonのparseに失敗: %v", run.Params)
+		return "", err
+	}
+	pStr, err := convertPrettyJSON(params)
+	if err != nil {
+		return "", err
+	}
+
+	// APIを作成
+	api := &model.API{}
+	api.Name = name
+	api.Description = run.Description
+	api.Request = &model.APIRequest{
+		Method:  strings.ToUpper(run.Method),
+		Path:    run.Path,
+		Headers: strings.Join(hStrs, "\n"),
+		Params:  strings.Trim(pStr, "\n"),
+	}
+
+	// プレビュー
+	b, err := getBinFileData("print_preview.tmpl")
+	if err != nil {
+		return "", err
+	}
+	out, err := s.tRepo.GetMarged(string(b), api)
+	if err != nil {
+		return "", err
+	}
+	return out, nil
+}
+
+func (s *runner) getCommonFile() (*model.FileCommon, error) {
+	file, err := ioutil.ReadFile(s.configDir + "common.json")
 	if err != nil {
 		log.Errorf(err, "ファイル読み込みに失敗: %s%s", s.configDir, "common.json")
 		return nil, err
 	}
-	var common model.FileCommon
-	err = json.Unmarshal(commonFile, &common)
+	var dst model.FileCommon
+	err = json.Unmarshal(file, &dst)
 	if err != nil {
-		log.Errorf(err, "jsonのparseに失敗: %s", string(commonFile))
+		log.Errorf(err, "jsonのparseに失敗: %s", string(file))
 		return nil, err
 	}
+	return &dst, nil
+}
 
-	// 認証設定
-	authFile, err := ioutil.ReadFile(s.configDir + "auth.json")
+func (s *runner) getAuthFile() (*model.FileAuth, error) {
+	file, err := ioutil.ReadFile(s.configDir + "auth.json")
 	if err != nil {
-		log.Errorf(err, "ファイル読み込みに失敗: %s%s", s.configDir, "auth.json")
+		log.Errorf(err, "ファイル読み込みに失敗: %s%s", s.configDir, "common.json")
 		return nil, err
 	}
-	var auth model.FileAuth
-	err = json.Unmarshal(authFile, &auth)
+	var dst model.FileAuth
+	err = json.Unmarshal(file, &dst)
 	if err != nil {
-		log.Errorf(err, "jsonのparseに失敗: %s", string(authFile))
+		log.Errorf(err, "jsonのparseに失敗: %s", string(file))
 		return nil, err
 	}
+	return &dst, nil
+}
 
-	// 実行設定
-	runFile, err := ioutil.ReadFile(s.runsDir + name + ".json")
+func (s *runner) getRunFile(name string) (*model.FileRun, error) {
+	file, err := ioutil.ReadFile(s.runsDir + name + ".json")
 	if err != nil {
 		log.Errorf(err, "ファイル読み込みに失敗: %s%s%s", s.runsDir, name, ".json")
 		return nil, err
 	}
-	var run model.FileRun
-	err = json.Unmarshal(runFile, &run)
+	var dst model.FileRun
+	err = json.Unmarshal(file, &dst)
 	if err != nil {
-		log.Errorf(err, "jsonのparseに失敗: %s", string(runFile))
+		log.Errorf(err, "jsonのparseに失敗: %s", string(file))
+		return nil, err
+	}
+	dst.Method = strings.ToLower(dst.Method)
+	return &dst, nil
+}
+
+func (s *runner) Run(name string, env string, doc bool) (*model.API, error) {
+	// 共通設定
+	common, err := s.getCommonFile()
+	if err != nil {
+		log.Errorf(err, "ファイル読み込みに失敗: %s%s", s.configDir, "common.json")
+		return nil, err
+	}
+
+	// 認証設定
+	auth, err := s.getAuthFile()
+	if err != nil {
+		log.Errorf(err, "ファイル読み込みに失敗: %s%s", s.configDir, "auth.json")
+		return nil, err
+	}
+
+	// 実行設定
+	run, err := s.getRunFile(name)
+	if err != nil {
+		log.Errorf(err, "ファイル読み込みに失敗: %s%s%s", s.runsDir, name, ".json")
 		return nil, err
 	}
 
@@ -194,6 +292,7 @@ func (s *runner) Run(name string, env string) (*model.API, error) {
 		StatusCode: statusCode,
 		Body:       strings.Trim(resStr, "\n"),
 	}
+	api.Command = s.generateCommand(name, env, doc)
 
 	// 結果(リクエスト)を表示
 	b, err := getBinFileData("print_req.tmpl")
@@ -217,10 +316,37 @@ func (s *runner) Run(name string, env string) (*model.API, error) {
 	}
 	fmt.Println("\n\x1b[36m" + out + "\x1b[0m")
 
+	// コマンド
+	b, err = getBinFileData("print_cmd.tmpl")
+	if err != nil {
+		return nil, err
+	}
+	out, err = s.tRepo.GetMarged(string(b), api)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("\n\x1b[35m" + out + "\x1b[0m")
+	fmt.Println("")
+
 	// 認証情報を隠したheaderに差し替える
 	api.Request.Headers = strings.Join(hStrs, "\n")
 
 	return api, nil
+}
+
+func (s *runner) generateCommand(name string, env string, doc bool) string {
+	cmds := []string{"rundoc", "run", name}
+	switch env {
+	case "local":
+		break
+	case "staging", "production":
+		cmds = append(cmds, "-e")
+		cmds = append(cmds, env)
+	}
+	if doc {
+		cmds = append(cmds, "-d")
+	}
+	return strings.Join(cmds, " ")
 }
 
 // NewRunner ... サービスを作成する
