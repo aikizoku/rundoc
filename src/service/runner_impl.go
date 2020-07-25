@@ -112,7 +112,6 @@ func (s *runner) GetRunPreview(name string) (string, error) {
 func (s *runner) getCommonFile() (*model.FileCommon, error) {
 	file, err := ioutil.ReadFile(s.configDir + "common.json")
 	if err != nil {
-		log.Errorf(err, "ファイル読み込みに失敗: %s%s", s.configDir, "common.json")
 		return nil, err
 	}
 	var dst model.FileCommon
@@ -127,7 +126,6 @@ func (s *runner) getCommonFile() (*model.FileCommon, error) {
 func (s *runner) getAuthFile() (*model.FileAuth, error) {
 	file, err := ioutil.ReadFile(s.configDir + "auth.json")
 	if err != nil {
-		log.Errorf(err, "ファイル読み込みに失敗: %s%s", s.configDir, "common.json")
 		return nil, err
 	}
 	var dst model.FileAuth
@@ -142,7 +140,6 @@ func (s *runner) getAuthFile() (*model.FileAuth, error) {
 func (s *runner) getRunFile(name string) (*model.FileRun, error) {
 	file, err := ioutil.ReadFile(s.runsDir + name + ".json")
 	if err != nil {
-		log.Errorf(err, "ファイル読み込みに失敗: %s%s%s", s.runsDir, name, ".json")
 		return nil, err
 	}
 	var dst model.FileRun
@@ -160,6 +157,7 @@ func (s *runner) Run(name string, env string, doc bool) (*model.API, error) {
 	common, err := s.getCommonFile()
 	if err != nil {
 		log.Errorf(err, "ファイル読み込みに失敗: %s%s", s.configDir, "common.json")
+		log.Infof("retry:\n  $ %s", s.generateCommand(name, env, doc))
 		return nil, err
 	}
 
@@ -167,6 +165,7 @@ func (s *runner) Run(name string, env string, doc bool) (*model.API, error) {
 	auth, err := s.getAuthFile()
 	if err != nil {
 		log.Errorf(err, "ファイル読み込みに失敗: %s%s", s.configDir, "auth.json")
+		log.Infof("retry:\n  $ %s", s.generateCommand(name, env, doc))
 		return nil, err
 	}
 
@@ -174,6 +173,7 @@ func (s *runner) Run(name string, env string, doc bool) (*model.API, error) {
 	run, err := s.getRunFile(name)
 	if err != nil {
 		log.Errorf(err, "ファイル読み込みに失敗: %s%s%s", s.runsDir, name, ".json")
+		log.Infof("retry:\n  $ %s", s.generateCommand(name, env, doc))
 		return nil, err
 	}
 
@@ -192,6 +192,7 @@ func (s *runner) Run(name string, env string, doc bool) (*model.API, error) {
 	default:
 		err = fmt.Errorf("%s", env)
 		log.Errorf(err, "不正な実行環境: %s", env)
+		log.Infof("retry:\n  $ %s", s.generateCommand(name, env, doc))
 		return nil, err
 	}
 
@@ -209,6 +210,7 @@ func (s *runner) Run(name string, env string, doc bool) (*model.API, error) {
 	params, err := json.Marshal(run.Params)
 	if err != nil {
 		log.Errorf(err, "jsonのparseに失敗: %v", run.Params)
+		log.Infof("retry:\n  $ %s", s.generateCommand(name, env, doc))
 		return nil, err
 	}
 
@@ -220,26 +222,31 @@ func (s *runner) Run(name string, env string, doc bool) (*model.API, error) {
 	case "get":
 		runTime, statusCode, body, err = s.hRepo.Get(url, run.Params, headers)
 		if err != nil {
+			log.Infof("retry:\n  $ %s", s.generateCommand(name, env, doc))
 			return nil, err
 		}
 	case "post":
 		runTime, statusCode, body, err = s.hRepo.Post(url, params, headers)
 		if err != nil {
+			log.Infof("retry:\n  $ %s", s.generateCommand(name, env, doc))
 			return nil, err
 		}
 	case "put":
 		runTime, statusCode, body, err = s.hRepo.Put(url, params, headers)
 		if err != nil {
+			log.Infof("retry:\n  $ %s", s.generateCommand(name, env, doc))
 			return nil, err
 		}
 	case "delete":
 		runTime, statusCode, body, err = s.hRepo.Delete(url, run.Params, headers)
 		if err != nil {
+			log.Infof("retry:\n  $ %s", s.generateCommand(name, env, doc))
 			return nil, err
 		}
 	default:
 		err = fmt.Errorf("%s", run.Method)
 		log.Errorf(err, "不正なmethod: %s", run.Method)
+		log.Infof("retry:\n  $ %s", s.generateCommand(name, env, doc))
 		return nil, err
 	}
 

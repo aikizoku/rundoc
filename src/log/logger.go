@@ -15,7 +15,7 @@ func Setup() {
 // Infof ... ログの出力
 func Infof(msg string, args ...interface{}) {
 	txt := fmt.Sprintf(msg, args...)
-	log.Printf("%s %s", getFileLine(), txt)
+	fmt.Printf("\x1b[35m%s\x1b[0m\n", txt)
 }
 
 // Errorf ... ERRORログの出力
