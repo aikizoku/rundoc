@@ -2,7 +2,6 @@ package repository
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -107,12 +106,6 @@ func (r *httpClient) send(req *http.Request) (int64, int, []byte, error) {
 		return 0, 0, nil, err
 	}
 	resTime := afterTime - beforeTime
-
-	if res.StatusCode != http.StatusOK {
-		err = errors.New("")
-		log.Errorf(err, "HTTP Request送信に失敗: Status=%d", res.StatusCode)
-		return resTime, res.StatusCode, nil, err
-	}
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {

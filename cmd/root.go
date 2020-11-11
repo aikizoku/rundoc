@@ -43,7 +43,7 @@ var rootCmd = &cobra.Command{
 			// APIの選択
 			names, err := d.Runner.GetRunList()
 			if err != nil {
-				os.Exit(1)
+				os.Exit(500)
 			}
 			index, err := fuzzyfinder.Find(
 				names,
@@ -51,12 +51,18 @@ var rootCmd = &cobra.Command{
 					return names[i]
 				},
 				fuzzyfinder.WithPreviewWindow(func(i, w, h int) string {
+					if i < 0 {
+						return ""
+					}
 					preview, err := d.Runner.GetRunPreview(names[i])
 					if err != nil {
 						return err.Error()
 					}
 					return preview
 				}))
+			if err != nil {
+				os.Exit(404)
+			}
 			name = names[index]
 
 			// 環境の選択
@@ -67,8 +73,14 @@ var rootCmd = &cobra.Command{
 					return envs[i]
 				},
 				fuzzyfinder.WithPreviewWindow(func(i, w, h int) string {
+					if i < 0 {
+						return ""
+					}
 					return "実行環境を選択"
 				}))
+			if err != nil {
+				os.Exit(404)
+			}
 			env := envs[index]
 
 			// ドキュメント作成の選択
@@ -79,14 +91,20 @@ var rootCmd = &cobra.Command{
 					return fmt.Sprintf("%t", docs[i])
 				},
 				fuzzyfinder.WithPreviewWindow(func(i, w, h int) string {
+					if i < 0 {
+						return ""
+					}
 					return "ドキュメントを作成する？"
 				}))
+			if err != nil {
+				os.Exit(404)
+			}
 			doc := docs[index]
 
 			// 実行
 			api, err := d.Runner.Run(name, env, doc)
 			if err != nil {
-				os.Exit(1)
+				os.Exit(500)
 			}
 
 			if doc {
@@ -97,7 +115,7 @@ var rootCmd = &cobra.Command{
 			// 自動式
 			api, err := d.Runner.Run(name, env, doc)
 			if err != nil {
-				os.Exit(1)
+				os.Exit(500)
 			}
 			if doc {
 				d.Documenter.Distribute(name, api)
