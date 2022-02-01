@@ -11,6 +11,10 @@ import (
 type file struct {
 }
 
+func NewFile() File {
+	return &file{}
+}
+
 func (r *file) GetNameList(dirPath string) ([]string, error) {
 	files, err := ioutil.ReadDir(dirPath)
 	if err != nil {
@@ -66,9 +70,4 @@ func (r *file) Remove(path string) error {
 		return err
 	}
 	return nil
-}
-
-// NewFile ... リポジトリを作成する
-func NewFile() File {
-	return &file{}
 }

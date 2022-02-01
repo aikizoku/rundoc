@@ -13,15 +13,15 @@ import (
 )
 
 type runner struct {
-	configDir string
-	runsDir   string
-	fRepo     repository.File
-	hRepo     repository.HTTPClient
-	tRepo     repository.TemplateClient
+	configDir       string
+	runsDir         string
+	rFile           repository.File
+	rHTTPClient     repository.HTTPClient
+	rTemplateClient repository.TemplateClient
 }
 
 func (s *runner) ShowRunList() error {
-	fileNames, err := s.fRepo.GetNameList(s.runsDir)
+	fileNames, err := s.rFile.GetNameList(s.runsDir)
 	if err != nil {
 		return err
 	}
@@ -33,7 +33,7 @@ func (s *runner) ShowRunList() error {
 }
 
 func (s *runner) GetRunList() ([]string, error) {
-	fileNames, err := s.fRepo.GetNameList(s.runsDir)
+	fileNames, err := s.rFile.GetNameList(s.runsDir)
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +102,7 @@ func (s *runner) GetRunPreview(name string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	out, err := s.tRepo.GetMarged(string(b), api)
+	out, err := s.rTemplateClient.GetMarged(string(b), api)
 	if err != nil {
 		return "", err
 	}
@@ -220,25 +220,25 @@ func (s *runner) Run(name string, env string, doc bool) (*model.API, error) {
 	var body []byte
 	switch run.Method {
 	case "get":
-		runTime, statusCode, body, err = s.hRepo.Get(url, run.Params, headers)
+		runTime, statusCode, body, err = s.rHTTPClient.Get(url, run.Params, headers)
 		if err != nil {
 			log.Infof("retry:\n  $ %s", s.generateCommand(name, env, doc))
 			return nil, err
 		}
 	case "post":
-		runTime, statusCode, body, err = s.hRepo.Post(url, params, headers)
+		runTime, statusCode, body, err = s.rHTTPClient.Post(url, params, headers)
 		if err != nil {
 			log.Infof("retry:\n  $ %s", s.generateCommand(name, env, doc))
 			return nil, err
 		}
 	case "put":
-		runTime, statusCode, body, err = s.hRepo.Put(url, params, headers)
+		runTime, statusCode, body, err = s.rHTTPClient.Put(url, params, headers)
 		if err != nil {
 			log.Infof("retry:\n  $ %s", s.generateCommand(name, env, doc))
 			return nil, err
 		}
 	case "delete":
-		runTime, statusCode, body, err = s.hRepo.Delete(url, run.Params, headers)
+		runTime, statusCode, body, err = s.rHTTPClient.Delete(url, run.Params, headers)
 		if err != nil {
 			log.Infof("retry:\n  $ %s", s.generateCommand(name, env, doc))
 			return nil, err
@@ -304,7 +304,7 @@ func (s *runner) Run(name string, env string, doc bool) (*model.API, error) {
 	if err != nil {
 		return nil, err
 	}
-	out, err := s.tRepo.GetMarged(string(b), api)
+	out, err := s.rTemplateClient.GetMarged(string(b), api)
 	if err != nil {
 		return nil, err
 	}
@@ -315,7 +315,7 @@ func (s *runner) Run(name string, env string, doc bool) (*model.API, error) {
 	if err != nil {
 		return nil, err
 	}
-	out, err = s.tRepo.GetMarged(string(b), api)
+	out, err = s.rTemplateClient.GetMarged(string(b), api)
 	if err != nil {
 		return nil, err
 	}
@@ -326,7 +326,7 @@ func (s *runner) Run(name string, env string, doc bool) (*model.API, error) {
 	if err != nil {
 		return nil, err
 	}
-	out, err = s.tRepo.GetMarged(string(b), api)
+	out, err = s.rTemplateClient.GetMarged(string(b), api)
 	if err != nil {
 		return nil, err
 	}
@@ -358,14 +358,14 @@ func (s *runner) generateCommand(name string, env string, doc bool) string {
 func NewRunner(
 	configDir string,
 	runsDir string,
-	fRepo repository.File,
-	hRepo repository.HTTPClient,
-	tRepo repository.TemplateClient) Runner {
+	rFile repository.File,
+	rHTTPClient repository.HTTPClient,
+	rTemplateClient repository.TemplateClient) Runner {
 	return &runner{
-		configDir: configDir,
-		runsDir:   runsDir,
-		fRepo:     fRepo,
-		hRepo:     hRepo,
-		tRepo:     tRepo,
+		configDir:       configDir,
+		runsDir:         runsDir,
+		rFile:           rFile,
+		rHTTPClient:     rHTTPClient,
+		rTemplateClient: rTemplateClient,
 	}
 }

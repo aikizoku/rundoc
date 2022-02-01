@@ -13,17 +13,17 @@ type initializer struct {
 	configDir string
 	runsDir   string
 	docsDir   string
-	fRepo     repository.File
+	rFile     repository.File
 }
 
 func (s *initializer) Init() error {
-	s.fRepo.WriteDir(s.rootDir)
-	s.fRepo.WriteDir(s.configDir)
-	s.fRepo.WriteDir(s.runsDir)
-	s.fRepo.WriteDir(s.docsDir)
+	s.rFile.WriteDir(s.rootDir)
+	s.rFile.WriteDir(s.configDir)
+	s.rFile.WriteDir(s.runsDir)
+	s.rFile.WriteDir(s.docsDir)
 
 	// common.json
-	if !s.fRepo.Exist(s.configDir + "common.json") {
+	if !s.rFile.Exist(s.configDir + "common.json") {
 		common := &model.FileCommon{
 			Endpoints: &model.FileEndpoints{
 				Local:      "http://localhost:8080",
@@ -43,7 +43,7 @@ func (s *initializer) Init() error {
 		if err != nil {
 			return err
 		}
-		err = s.fRepo.Write(s.configDir+"common.json", jstr)
+		err = s.rFile.Write(s.configDir+"common.json", jstr)
 		if err != nil {
 			return err
 		}
@@ -51,7 +51,7 @@ func (s *initializer) Init() error {
 	}
 
 	// auth.json
-	if !s.fRepo.Exist(s.configDir + "auth.json") {
+	if !s.rFile.Exist(s.configDir + "auth.json") {
 		auth := &model.FileAuth{
 			Local:      "sample_local_token",
 			Staging:    "sample_staging_token",
@@ -66,14 +66,14 @@ func (s *initializer) Init() error {
 		if err != nil {
 			return err
 		}
-		err = s.fRepo.Write(s.configDir+"auth.json", jstr)
+		err = s.rFile.Write(s.configDir+"auth.json", jstr)
 		if err != nil {
 			return err
 		}
 	}
 
 	// sample.json
-	if !s.fRepo.Exist(s.runsDir + "sample.json") {
+	if !s.rFile.Exist(s.runsDir + "sample.json") {
 		sample := &model.FileRun{
 			Description: "サンプルAPIの詳細",
 			Path:        "/v1/sample",
@@ -95,7 +95,7 @@ func (s *initializer) Init() error {
 		if err != nil {
 			return err
 		}
-		err = s.fRepo.Write(s.runsDir+"sample.json", jstr)
+		err = s.rFile.Write(s.runsDir+"sample.json", jstr)
 		if err != nil {
 			return err
 		}
@@ -109,12 +109,12 @@ func NewInitializer(
 	configDir string,
 	runsDir string,
 	docsDir string,
-	fRepo repository.File) Initializer {
+	rFile repository.File) Initializer {
 	return &initializer{
 		rootDir:   rootDir,
 		configDir: configDir,
 		runsDir:   runsDir,
 		docsDir:   docsDir,
-		fRepo:     fRepo,
+		rFile:     rFile,
 	}
 }

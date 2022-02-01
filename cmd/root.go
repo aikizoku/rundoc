@@ -137,11 +137,11 @@ type runDependency struct {
 
 func (d *runDependency) Inject() {
 	// Repository
-	fRepo := repository.NewFile()
-	hRepo := repository.NewHTTPClient()
-	tRepo := repository.NewTemplateClient()
+	rFile := repository.NewFile()
+	rHTTPClient := repository.NewHTTPClient()
+	rTemplateClient := repository.NewTemplateClient()
 
 	// Service
-	d.Runner = service.NewRunner(config.ConfigDir, config.RunsDir, fRepo, hRepo, tRepo)
-	d.Documenter = service.NewDocumenter(config.ConfigDir, config.DocsDir, fRepo, tRepo)
+	d.Runner = service.NewRunner(config.ConfigDir, config.RunsDir, rFile, rHTTPClient, rTemplateClient)
+	d.Documenter = service.NewDocumenter(config.ConfigDir, config.DocsDir, rFile, rTemplateClient)
 }

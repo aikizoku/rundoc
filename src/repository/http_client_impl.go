@@ -14,6 +14,12 @@ type httpClient struct {
 	timeout time.Duration
 }
 
+func NewHTTPClient() HTTPClient {
+	return &httpClient{
+		10 * time.Minute,
+	}
+}
+
 func (r *httpClient) Get(url string, params map[string]interface{}, headers map[string]string) (int64, int, []byte, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -119,12 +125,4 @@ func (r *httpClient) send(req *http.Request) (int64, int, []byte, error) {
 
 func (r *httpClient) timeNowUnix() int64 {
 	return time.Now().UnixNano() / int64(time.Millisecond)
-}
-
-// NewHTTPClient ... リポジトリを作成する
-func NewHTTPClient() HTTPClient {
-	timeout := 10 * time.Minute
-	return &httpClient{
-		timeout: timeout,
-	}
 }

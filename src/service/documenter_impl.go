@@ -6,10 +6,10 @@ import (
 )
 
 type documenter struct {
-	configDir string
-	docsDir   string
-	fRepo     repository.File
-	tRepo     repository.TemplateClient
+	configDir       string
+	docsDir         string
+	rFile           repository.File
+	rTemplateClient repository.TemplateClient
 }
 
 func (s *documenter) Distribute(name string, api *model.API) error {
@@ -17,18 +17,18 @@ func (s *documenter) Distribute(name string, api *model.API) error {
 	if err != nil {
 		return err
 	}
-	str, err := s.tRepo.GetMarged(string(b), api)
+	str, err := s.rTemplateClient.GetMarged(string(b), api)
 	if err != nil {
 		return err
 	}
 	path := s.docsDir + name + ".md"
-	if s.fRepo.Exist(path) {
-		err = s.fRepo.Remove(path)
+	if s.rFile.Exist(path) {
+		err = s.rFile.Remove(path)
 		if err != nil {
 			return err
 		}
 	}
-	err = s.fRepo.Write(path, str)
+	err = s.rFile.Write(path, str)
 	if err != nil {
 		return err
 	}
@@ -39,12 +39,12 @@ func (s *documenter) Distribute(name string, api *model.API) error {
 func NewDocumenter(
 	configDir string,
 	docsDir string,
-	fRepo repository.File,
-	tRepo repository.TemplateClient) Documenter {
+	rFile repository.File,
+	rTemplateClient repository.TemplateClient) Documenter {
 	return &documenter{
-		configDir: configDir,
-		docsDir:   docsDir,
-		fRepo:     fRepo,
-		tRepo:     tRepo,
+		configDir:       configDir,
+		docsDir:         docsDir,
+		rFile:           rFile,
+		rTemplateClient: rTemplateClient,
 	}
 }

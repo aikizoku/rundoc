@@ -37,8 +37,8 @@ type initDependency struct {
 
 func (d *initDependency) Inject() {
 	// Repository
-	fRepo := repository.NewFile()
+	rFile := repository.NewFile()
 
 	// Service
-	d.Initializer = service.NewInitializer(config.RootDir, config.ConfigDir, config.RunsDir, config.DocsDir, fRepo)
+	d.Initializer = service.NewInitializer(config.RootDir, config.ConfigDir, config.RunsDir, config.DocsDir, rFile)
 }
