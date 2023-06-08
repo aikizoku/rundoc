@@ -6,7 +6,7 @@ jsonでリクエストを記述すると、APIの実行 & 表示 & ドキュメ�
 ## インストール
 
 ```bash
-go install github.com/aikizoku/rundoc@v1.0.0
+go install github.com/aikizoku/rundoc@v?.?.?
 ```
 
 ## 初期化
