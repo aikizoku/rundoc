@@ -1,0 +1,10 @@
+{
+    "description": "サンプルエラーの詳細",
+    "path": "/sample/error",
+    "method": "get",
+    "headers": {
+        "Authorization": "token",
+        "X-OS": "iOS"
+    },
+    "params": {}
+}

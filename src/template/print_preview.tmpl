@@ -2,6 +2,6 @@
 
 {{.Request.Method}} {{.Request.Path}}
 
-{{.Request.Headers}}
+{{safe_html .Request.Headers}}
 
-{{.Request.Params}}
+{{safe_html .Request.Params}}

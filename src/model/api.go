@@ -1,6 +1,5 @@
 package model
 
-// API ...
 type API struct {
 	Name        string
 	Description string
@@ -10,14 +9,12 @@ type API struct {
 	Command     string
 }
 
-// APIEndpoints ...
 type APIEndpoints struct {
 	Local      string
 	Staging    string
 	Production string
 }
 
-// APIRequest ...
 type APIRequest struct {
 	Method  string
 	Path    string
@@ -25,7 +22,6 @@ type APIRequest struct {
 	Params  string
 }
 
-// APIResponse ...
 type APIResponse struct {
 	Time       int64
 	StatusCode int

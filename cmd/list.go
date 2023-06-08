@@ -3,11 +3,10 @@ package cmd
 import (
 	"os"
 
-	"github.com/spf13/cobra"
-
 	"github.com/aikizoku/rundoc/src/config"
 	"github.com/aikizoku/rundoc/src/repository"
 	"github.com/aikizoku/rundoc/src/service"
+	"github.com/spf13/cobra"
 )
 
 var listCmd = &cobra.Command{
@@ -40,5 +39,11 @@ func (d *listDependency) Inject() {
 	rTemplateClient := repository.NewTemplateClient()
 
 	// Service
-	d.Runner = service.NewRunner(config.ConfigDir, config.RunsDir, rFile, rHTTPClient, rTemplateClient)
+	d.Runner = service.NewRunner(
+		rFile,
+		rHTTPClient,
+		rTemplateClient,
+		config.ConfigDir,
+		config.RunsDir,
+	)
 }

@@ -9,18 +9,42 @@ import (
 )
 
 type initializer struct {
+	rFile     repository.File
 	rootDir   string
 	configDir string
 	runsDir   string
 	docsDir   string
-	rFile     repository.File
+}
+
+func NewInitializer(
+	rFile repository.File,
+	rootDir string,
+	configDir string,
+	runsDir string,
+	docsDir string,
+) Initializer {
+	return &initializer{
+		rFile,
+		rootDir,
+		configDir,
+		runsDir,
+		docsDir,
+	}
 }
 
 func (s *initializer) Init() error {
-	s.rFile.WriteDir(s.rootDir)
-	s.rFile.WriteDir(s.configDir)
-	s.rFile.WriteDir(s.runsDir)
-	s.rFile.WriteDir(s.docsDir)
+	if err := s.rFile.WriteDir(s.rootDir); err != nil {
+		panic(err)
+	}
+	if err := s.rFile.WriteDir(s.configDir); err != nil {
+		panic(err)
+	}
+	if err := s.rFile.WriteDir(s.runsDir); err != nil {
+		panic(err)
+	}
+	if err := s.rFile.WriteDir(s.docsDir); err != nil {
+		panic(err)
+	}
 
 	// common.json
 	if !s.rFile.Exist(s.configDir + "common.json") {
@@ -39,11 +63,11 @@ func (s *initializer) Init() error {
 			log.Errorf(err, "common.jsonのparseに失敗: %v", common)
 			return err
 		}
-		jstr, err := convertPrettyJSON(j)
+		jStr, err := convertPrettyJSON(j, false)
 		if err != nil {
 			return err
 		}
-		err = s.rFile.Write(s.configDir+"common.json", jstr)
+		err = s.rFile.Write(s.configDir+"common.json", jStr)
 		if err != nil {
 			return err
 		}
@@ -62,11 +86,11 @@ func (s *initializer) Init() error {
 			log.Errorf(err, "auth.jsonのparseに失敗: %v", auth)
 			return err
 		}
-		jstr, err := convertPrettyJSON(j)
+		jStr, err := convertPrettyJSON(j, false)
 		if err != nil {
 			return err
 		}
-		err = s.rFile.Write(s.configDir+"auth.json", jstr)
+		err = s.rFile.Write(s.configDir+"auth.json", jStr)
 		if err != nil {
 			return err
 		}
@@ -81,7 +105,7 @@ func (s *initializer) Init() error {
 			Headers: map[string]string{
 				"X-OS": "iOS",
 			},
-			Params: map[string]interface{}{
+			Params: map[string]any{
 				"hoge": "aaaaa",
 				"fuga": "xxxxx",
 			},
@@ -91,30 +115,14 @@ func (s *initializer) Init() error {
 			log.Errorf(err, "sample.jsonのparseに失敗: %v", sample)
 			return err
 		}
-		jstr, err := convertPrettyJSON(j)
+		jStr, err := convertPrettyJSON(j, false)
 		if err != nil {
 			return err
 		}
-		err = s.rFile.Write(s.runsDir+"sample.json", jstr)
+		err = s.rFile.Write(s.runsDir+"sample.json", jStr)
 		if err != nil {
 			return err
 		}
 	}
 	return nil
-}
-
-// NewInitializer ...
-func NewInitializer(
-	rootDir string,
-	configDir string,
-	runsDir string,
-	docsDir string,
-	rFile repository.File) Initializer {
-	return &initializer{
-		rootDir:   rootDir,
-		configDir: configDir,
-		runsDir:   runsDir,
-		docsDir:   docsDir,
-		rFile:     rFile,
-	}
 }

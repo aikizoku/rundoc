@@ -1,4 +1,4 @@
 ------------- Request
 {{.Request.Method}} {{.Request.Path}}
 {{.Request.Headers}}
-{{.Request.Params}}
+{{safe_html .Request.Params}}

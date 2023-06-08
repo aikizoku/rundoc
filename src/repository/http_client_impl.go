@@ -3,7 +3,7 @@ package repository
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"time"
 
@@ -20,7 +20,11 @@ func NewHTTPClient() HTTPClient {
 	}
 }
 
-func (r *httpClient) Get(url string, params map[string]interface{}, headers map[string]string) (int64, int, []byte, error) {
+func (r *httpClient) Get(
+	url string,
+	params map[string]any,
+	headers map[string]string,
+) (int64, int, []byte, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Errorf(err, "HTTP Request作成に失敗: %s", url)
@@ -33,22 +37,33 @@ func (r *httpClient) Get(url string, params map[string]interface{}, headers map[
 	for key, value := range params {
 		if v, ok := value.(string); ok {
 			query.Add(key, v)
-		}
-		if v, ok := value.(int64); ok {
-			query.Add(key, fmt.Sprintf("%d", v))
+			continue
 		}
 		if v, ok := value.(float64); ok {
-			query.Add(key, fmt.Sprintf("%f", v))
+			query.Add(key, fmt.Sprintf("%.0f", v))
+			continue
 		}
 		if v, ok := value.(bool); ok {
 			query.Add(key, fmt.Sprintf("%t", v))
+			continue
+		}
+		if arr, ok := value.([]any); ok {
+			aKey := fmt.Sprintf("%s[]", key)
+			for _, v := range arr {
+				query.Add(aKey, fmt.Sprintf("%v", v))
+			}
+			continue
 		}
 	}
 	req.URL.RawQuery = query.Encode()
 	return r.send(req)
 }
 
-func (r *httpClient) Post(url string, params []byte, headers map[string]string) (int64, int, []byte, error) {
+func (r *httpClient) Post(
+	url string,
+	params []byte,
+	headers map[string]string,
+) (int64, int, []byte, error) {
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(params))
 	if err != nil {
 		log.Errorf(err, "HTTP Request作成に失敗: %s", url)
@@ -60,7 +75,11 @@ func (r *httpClient) Post(url string, params []byte, headers map[string]string) 
 	return r.send(req)
 }
 
-func (r *httpClient) Put(url string, params []byte, headers map[string]string) (int64, int, []byte, error) {
+func (r *httpClient) Put(
+	url string,
+	params []byte,
+	headers map[string]string,
+) (int64, int, []byte, error) {
 	req, err := http.NewRequest("PUT", url, bytes.NewBuffer(params))
 	if err != nil {
 		log.Errorf(err, "HTTP Request作成に失敗: %s", url)
@@ -72,7 +91,11 @@ func (r *httpClient) Put(url string, params []byte, headers map[string]string) (
 	return r.send(req)
 }
 
-func (r *httpClient) Delete(url string, params map[string]interface{}, headers map[string]string) (int64, int, []byte, error) {
+func (r *httpClient) Delete(
+	url string,
+	params map[string]any,
+	headers map[string]string,
+) (int64, int, []byte, error) {
 	req, err := http.NewRequest("DELETE", url, nil)
 	if err != nil {
 		log.Errorf(err, "HTTP Request作成に失敗: %s", url)
@@ -100,7 +123,9 @@ func (r *httpClient) Delete(url string, params map[string]interface{}, headers m
 	return r.send(req)
 }
 
-func (r *httpClient) send(req *http.Request) (int64, int, []byte, error) {
+func (r *httpClient) send(
+	req *http.Request,
+) (int64, int, []byte, error) {
 	client := http.Client{}
 	client.Timeout = r.timeout
 
@@ -113,7 +138,7 @@ func (r *httpClient) send(req *http.Request) (int64, int, []byte, error) {
 	}
 	resTime := afterTime - beforeTime
 
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		log.Errorf(err, "Response Bodyの読み込みに失敗")
 		return resTime, res.StatusCode, nil, err

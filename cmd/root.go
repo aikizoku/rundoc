@@ -5,15 +5,13 @@ import (
 	"os"
 	"strings"
 
-	"github.com/ktr0731/go-fuzzyfinder"
-	"github.com/spf13/cobra"
-
 	"github.com/aikizoku/rundoc/src/config"
 	"github.com/aikizoku/rundoc/src/repository"
 	"github.com/aikizoku/rundoc/src/service"
+	"github.com/ktr0731/go-fuzzyfinder"
+	"github.com/spf13/cobra"
 )
 
-// Execute ...
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
@@ -108,7 +106,10 @@ var rootCmd = &cobra.Command{
 			}
 
 			if doc {
-				d.Documenter.Distribute(name, api)
+				err = d.Documenter.Distribute(name, api)
+				if err != nil {
+					os.Exit(500)
+				}
 			}
 
 		} else {
@@ -118,7 +119,10 @@ var rootCmd = &cobra.Command{
 				os.Exit(500)
 			}
 			if doc {
-				d.Documenter.Distribute(name, api)
+				err = d.Documenter.Distribute(name, api)
+				if err != nil {
+					os.Exit(500)
+				}
 			}
 		}
 	},
@@ -142,6 +146,17 @@ func (d *runDependency) Inject() {
 	rTemplateClient := repository.NewTemplateClient()
 
 	// Service
-	d.Runner = service.NewRunner(config.ConfigDir, config.RunsDir, rFile, rHTTPClient, rTemplateClient)
-	d.Documenter = service.NewDocumenter(config.ConfigDir, config.DocsDir, rFile, rTemplateClient)
+	d.Runner = service.NewRunner(
+		rFile,
+		rHTTPClient,
+		rTemplateClient,
+		config.ConfigDir,
+		config.RunsDir,
+	)
+	d.Documenter = service.NewDocumenter(
+		rFile,
+		rTemplateClient,
+		config.ConfigDir,
+		config.DocsDir,
+	)
 }

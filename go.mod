@@ -1,25 +1,28 @@
 module github.com/aikizoku/rundoc
 
-go 1.17
+go 1.19
 
 require (
-	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
-	github.com/ktr0731/go-fuzzyfinder v0.5.1
+	github.com/go-chi/chi v1.5.4
+	github.com/ktr0731/go-fuzzyfinder v0.7.0
 	github.com/rakyll/statik v0.1.7
-	github.com/spf13/cobra v1.3.0
+	github.com/spf13/cobra v1.7.0
+	github.com/unrolled/render v1.6.0
 )
 
 require (
+	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/gdamore/encoding v1.0.0 // indirect
-	github.com/gdamore/tcell/v2 v2.4.0 // indirect
-	github.com/inconshreveable/mousetrap v1.0.0 // indirect
-	github.com/lucasb-eyer/go-colorful v1.0.3 // indirect
-	github.com/mattn/go-runewidth v0.0.13 // indirect
-	github.com/nsf/termbox-go v0.0.0-20201124104050-ed494de23a00 // indirect
+	github.com/gdamore/tcell/v2 v2.5.3 // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
+	github.com/ktr0731/go-ansisgr v0.1.0 // indirect
+	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
+	github.com/mattn/go-runewidth v0.0.14 // indirect
+	github.com/nsf/termbox-go v1.1.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/rivo/uniseg v0.2.0 // indirect
+	github.com/rivo/uniseg v0.4.2 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	golang.org/x/sys v0.0.0-20211205182925-97ca703d548d // indirect
-	golang.org/x/term v0.0.0-20201210144234-2321bbc49cbf // indirect
-	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/sys v0.1.0 // indirect
+	golang.org/x/term v0.1.0 // indirect
+	golang.org/x/text v0.4.0 // indirect
 )

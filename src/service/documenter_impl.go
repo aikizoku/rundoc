@@ -6,18 +6,35 @@ import (
 )
 
 type documenter struct {
-	configDir       string
-	docsDir         string
 	rFile           repository.File
 	rTemplateClient repository.TemplateClient
+	configDir       string
+	docsDir         string
 }
 
-func (s *documenter) Distribute(name string, api *model.API) error {
+func NewDocumenter(
+	rFile repository.File,
+	rTemplateClient repository.TemplateClient,
+	configDir string,
+	docsDir string,
+) Documenter {
+	return &documenter{
+		rFile,
+		rTemplateClient,
+		configDir,
+		docsDir,
+	}
+}
+
+func (s *documenter) Distribute(
+	name string,
+	api *model.API,
+) error {
 	b, err := getBinFileData("doc.tmpl")
 	if err != nil {
 		return err
 	}
-	str, err := s.rTemplateClient.GetMarged(string(b), api)
+	str, err := s.rTemplateClient.GetMerged(string(b), api)
 	if err != nil {
 		return err
 	}
@@ -33,18 +50,4 @@ func (s *documenter) Distribute(name string, api *model.API) error {
 		return err
 	}
 	return nil
-}
-
-// NewDocumenter ... サービスを作成する
-func NewDocumenter(
-	configDir string,
-	docsDir string,
-	rFile repository.File,
-	rTemplateClient repository.TemplateClient) Documenter {
-	return &documenter{
-		configDir:       configDir,
-		docsDir:         docsDir,
-		rFile:           rFile,
-		rTemplateClient: rTemplateClient,
-	}
 }

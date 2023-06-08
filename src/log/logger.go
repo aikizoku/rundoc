@@ -7,19 +7,16 @@ import (
 	"strings"
 )
 
-// Setup ... ログのセットアップ
 func Setup() {
 	log.SetFlags(log.Ldate | log.Ltime)
 }
 
-// Infof ... ログの出力
-func Infof(msg string, args ...interface{}) {
+func Infof(msg string, args ...any) {
 	txt := fmt.Sprintf(msg, args...)
 	fmt.Printf("\x1b[35m%s\x1b[0m\n", txt)
 }
 
-// Errorf ... ERRORログの出力
-func Errorf(err error, msg string, args ...interface{}) {
+func Errorf(err error, msg string, args ...any) {
 	txt := fmt.Sprintf(msg, args...)
 	log.Printf("\x1b[33m[ERROR] %s %s %s\x1b[0m", getFileLine(), txt, err.Error())
 }

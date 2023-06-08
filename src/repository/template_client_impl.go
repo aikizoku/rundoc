@@ -2,8 +2,7 @@ package repository
 
 import (
 	"bytes"
-
-	"github.com/alecthomas/template"
+	"html/template"
 
 	"github.com/aikizoku/rundoc/src/log"
 )
@@ -15,9 +14,17 @@ func NewTemplateClient() TemplateClient {
 	return &templateClient{}
 }
 
-// GetMarged ... 任意の値をマージした文字列を返す
-func (r *templateClient) GetMarged(tmpl string, src interface{}) (string, error) {
-	t, err := template.New("tmpl").Parse(tmpl)
+func (r *templateClient) GetMerged(
+	tmpl string,
+	src any,
+) (string, error) {
+	funcMap := template.FuncMap{
+		// HTMLエスケープ
+		"safe_html": func(text string) template.HTML {
+			return template.HTML(text)
+		},
+	}
+	t, err := template.New("tmpl").Funcs(funcMap).Parse(tmpl)
 	if err != nil {
 		log.Errorf(err, "テンプレートファイルのParseに失敗: %s", tmpl)
 		return "", err

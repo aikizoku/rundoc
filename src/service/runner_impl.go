@@ -3,7 +3,7 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -13,11 +13,27 @@ import (
 )
 
 type runner struct {
-	configDir       string
-	runsDir         string
 	rFile           repository.File
 	rHTTPClient     repository.HTTPClient
 	rTemplateClient repository.TemplateClient
+	configDir       string
+	runsDir         string
+}
+
+func NewRunner(
+	rFile repository.File,
+	rHTTPClient repository.HTTPClient,
+	rTemplateClient repository.TemplateClient,
+	configDir string,
+	runsDir string,
+) Runner {
+	return &runner{
+		rFile,
+		rHTTPClient,
+		rTemplateClient,
+		configDir,
+		runsDir,
+	}
 }
 
 func (s *runner) ShowRunList() error {
@@ -45,11 +61,15 @@ func (s *runner) GetRunList() ([]string, error) {
 	return dsts, nil
 }
 
-func (s *runner) getFileNameWithoutExt(fileName string) string {
+func (s *runner) getFileNameWithoutExt(
+	fileName string,
+) string {
 	return filepath.Base(fileName[:len(fileName)-len(filepath.Ext(fileName))])
 }
 
-func (s *runner) GetRunPreview(name string) (string, error) {
+func (s *runner) GetRunPreview(
+	name string,
+) (string, error) {
 	// 実行設定
 	run, err := s.getRunFile(name)
 	if err != nil {
@@ -81,7 +101,7 @@ func (s *runner) GetRunPreview(name string) (string, error) {
 		log.Errorf(err, "jsonのparseに失敗: %v", run.Params)
 		return "", err
 	}
-	pStr, err := convertPrettyJSON(params)
+	pStr, err := convertPrettyJSON(params, false)
 	if err != nil {
 		return "", err
 	}
@@ -102,7 +122,7 @@ func (s *runner) GetRunPreview(name string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	out, err := s.rTemplateClient.GetMarged(string(b), api)
+	out, err := s.rTemplateClient.GetMerged(string(b), api)
 	if err != nil {
 		return "", err
 	}
@@ -110,7 +130,7 @@ func (s *runner) GetRunPreview(name string) (string, error) {
 }
 
 func (s *runner) getCommonFile() (*model.FileCommon, error) {
-	file, err := ioutil.ReadFile(s.configDir + "common.json")
+	file, err := os.ReadFile(s.configDir + "common.json")
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +144,7 @@ func (s *runner) getCommonFile() (*model.FileCommon, error) {
 }
 
 func (s *runner) getAuthFile() (*model.FileAuth, error) {
-	file, err := ioutil.ReadFile(s.configDir + "auth.json")
+	file, err := os.ReadFile(s.configDir + "auth.json")
 	if err != nil {
 		return nil, err
 	}
@@ -138,7 +158,7 @@ func (s *runner) getAuthFile() (*model.FileAuth, error) {
 }
 
 func (s *runner) getRunFile(name string) (*model.FileRun, error) {
-	file, err := ioutil.ReadFile(s.runsDir + name + ".json")
+	file, err := os.ReadFile(s.runsDir + name + ".json")
 	if err != nil {
 		return nil, err
 	}
@@ -152,7 +172,11 @@ func (s *runner) getRunFile(name string) (*model.FileRun, error) {
 	return &dst, nil
 }
 
-func (s *runner) Run(name string, env string, doc bool) (*model.API, error) {
+func (s *runner) Run(
+	name string,
+	env string,
+	doc bool,
+) (*model.API, error) {
 	// 共通設定
 	common, err := s.getCommonFile()
 	if err != nil {
@@ -278,7 +302,7 @@ func (s *runner) Run(name string, env string, doc bool) (*model.API, error) {
 		Staging:    common.Endpoints.Staging,
 		Production: common.Endpoints.Production,
 	}
-	reqStr, err := convertPrettyJSON(params)
+	reqStr, err := convertPrettyJSON(params, false)
 	if err != nil {
 		return nil, err
 	}
@@ -288,7 +312,7 @@ func (s *runner) Run(name string, env string, doc bool) (*model.API, error) {
 		Headers: strings.Join(ahStrs, "\n"),
 		Params:  strings.Trim(reqStr, "\n"),
 	}
-	resStr, err := convertPrettyJSON(body)
+	resStr, err := convertPrettyJSON(body, true)
 	if err != nil {
 		return nil, err
 	}
@@ -304,7 +328,7 @@ func (s *runner) Run(name string, env string, doc bool) (*model.API, error) {
 	if err != nil {
 		return nil, err
 	}
-	out, err := s.rTemplateClient.GetMarged(string(b), api)
+	out, err := s.rTemplateClient.GetMerged(string(b), api)
 	if err != nil {
 		return nil, err
 	}
@@ -315,7 +339,7 @@ func (s *runner) Run(name string, env string, doc bool) (*model.API, error) {
 	if err != nil {
 		return nil, err
 	}
-	out, err = s.rTemplateClient.GetMarged(string(b), api)
+	out, err = s.rTemplateClient.GetMerged(string(b), api)
 	if err != nil {
 		return nil, err
 	}
@@ -326,7 +350,7 @@ func (s *runner) Run(name string, env string, doc bool) (*model.API, error) {
 	if err != nil {
 		return nil, err
 	}
-	out, err = s.rTemplateClient.GetMarged(string(b), api)
+	out, err = s.rTemplateClient.GetMerged(string(b), api)
 	if err != nil {
 		return nil, err
 	}
@@ -339,7 +363,11 @@ func (s *runner) Run(name string, env string, doc bool) (*model.API, error) {
 	return api, nil
 }
 
-func (s *runner) generateCommand(name string, env string, doc bool) string {
+func (s *runner) generateCommand(
+	name string,
+	env string,
+	doc bool,
+) string {
 	cmds := []string{"rundoc", name}
 	switch env {
 	case "local":
@@ -352,20 +380,4 @@ func (s *runner) generateCommand(name string, env string, doc bool) string {
 		cmds = append(cmds, "-d")
 	}
 	return strings.Join(cmds, " ")
-}
-
-// NewRunner ... サービスを作成する
-func NewRunner(
-	configDir string,
-	runsDir string,
-	rFile repository.File,
-	rHTTPClient repository.HTTPClient,
-	rTemplateClient repository.TemplateClient) Runner {
-	return &runner{
-		configDir:       configDir,
-		runsDir:         runsDir,
-		rFile:           rFile,
-		rHTTPClient:     rHTTPClient,
-		rTemplateClient: rTemplateClient,
-	}
 }

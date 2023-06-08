@@ -3,18 +3,20 @@ package service
 import (
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
-
-	"github.com/rakyll/statik/fs"
+	"io"
 
 	"github.com/aikizoku/rundoc/src/log"
 	_ "github.com/aikizoku/rundoc/src/statik" // バイナリ化したファイル
+	"github.com/rakyll/statik/fs"
 )
 
-func convertPrettyJSON(body []byte) (string, error) {
+func convertPrettyJSON(body []byte, orFail bool) (string, error) {
 	out := new(bytes.Buffer)
 	err := json.Indent(out, body, "", "    ")
 	if err != nil {
+		if orFail {
+			return string(body), nil
+		}
 		log.Errorf(err, "jsonのparseに失敗: %s", string(body))
 		return "", err
 	}
@@ -34,11 +36,10 @@ func getBinFileData(name string) ([]byte, error) {
 		return nil, err
 	}
 
-	b, err := ioutil.ReadAll(f)
+	b, err := io.ReadAll(f)
 	if err != nil {
 		log.Errorf(err, "組み込みファイル読み込みに失敗: %s", name)
 		return nil, err
 	}
-
 	return b, nil
 }

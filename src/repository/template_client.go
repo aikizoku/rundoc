@@ -1,6 +1,8 @@
 package repository
 
-// TemplateClient ... テンプレートファイルに関するリポジトリ
 type TemplateClient interface {
-	GetMarged(tmpl string, src interface{}) (string, error)
+	GetMerged(
+		tmpl string,
+		src any,
+	) (string, error)
 }

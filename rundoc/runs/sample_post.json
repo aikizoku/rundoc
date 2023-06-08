@@ -6,7 +6,9 @@
         "X-OS": "iOS"
     },
     "params": {
-        "hoge": "xxxxx",
-        "fuga": 1
+        "text": "aaa",
+        "number": 1,
+        "array_text": ["a", "b", "c"],
+        "array_number": [1, 2, 3]
     }
 }

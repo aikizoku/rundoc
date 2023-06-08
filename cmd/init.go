@@ -3,11 +3,10 @@ package cmd
 import (
 	"os"
 
-	"github.com/spf13/cobra"
-
 	"github.com/aikizoku/rundoc/src/config"
 	"github.com/aikizoku/rundoc/src/repository"
 	"github.com/aikizoku/rundoc/src/service"
+	"github.com/spf13/cobra"
 )
 
 var initCmd = &cobra.Command{
@@ -40,5 +39,11 @@ func (d *initDependency) Inject() {
 	rFile := repository.NewFile()
 
 	// Service
-	d.Initializer = service.NewInitializer(config.RootDir, config.ConfigDir, config.RunsDir, config.DocsDir, rFile)
+	d.Initializer = service.NewInitializer(
+		rFile,
+		config.RootDir,
+		config.ConfigDir,
+		config.RunsDir,
+		config.DocsDir,
+	)
 }
