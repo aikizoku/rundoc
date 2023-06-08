@@ -6,7 +6,7 @@ jsonでリクエストを記述すると、APIの実行 & 表示 & ドキュメ�
 ## インストール
 
 ```bash
-go get github.com/aikizoku/rundoc
+go install github.com/aikizoku/rundoc@v?.?.?
 ```
 
 ## 初期化
@@ -50,6 +50,7 @@ sample_delete
 sample_get
 sample_post
 sample_put
+sample_error
 ```
 
 実行する環境を選択する
