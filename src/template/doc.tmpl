@@ -14,7 +14,7 @@
 {{.Request.Headers}}
 ```
 ```json
-{{.Request.Params}}
+{{safe_html .Request.Params}}
 ```
 
 ## Response
@@ -23,5 +23,5 @@
 Status {{.Response.StatusCode}}
 ```
 ```json
-{{.Response.Body}}
+{{safe_html .Response.Body}}
 ```
